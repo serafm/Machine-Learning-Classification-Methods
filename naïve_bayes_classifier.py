@@ -10,7 +10,6 @@ from sklearn.model_selection import train_test_split
 mobile_dataset = pd.read_csv('data/train_mobile.csv')
 
 y_mobile = mobile_dataset['price_range']
-print(y_mobile.head())
 x_mobile = mobile_dataset.drop(['price_range'], axis=1)
 print(x_mobile.head())
 
@@ -117,13 +116,13 @@ class NaiveBayesClassifier:
 
 
 # train the model
-nbc = NaiveBayesClassifier()
+naive_bayes_classifier = NaiveBayesClassifier()
 
-nbc.fit(x_mobile_train, y_mobile_train)
+naive_bayes_classifier.fit(x_mobile_train, y_mobile_train)
 
-predict_train = nbc.predict(x_mobile_test)
+predict_train = naive_bayes_classifier.predict(x_mobile_test)
 
-acc = nbc.accuracy(y_mobile_test, predict_train)
+acc = naive_bayes_classifier.accuracy(y_mobile_test, predict_train)
 f1score = f1_score(predict_train, y_mobile_test, average='weighted')
 
 print("\n")
@@ -132,5 +131,5 @@ print("Accuracy= ", acc)
 print("f1 score(weighted)= ", f1score)
 
 # print predict and y test side by side
-res = "\n".join("{} {}".format(x, y) for x, y in zip(y_mobile_test, predict_train))
-print(res)
+# res = "\n".join("{} {}".format(x, y) for x, y in zip(y_mobile_test, predict_train))
+# print(res)
