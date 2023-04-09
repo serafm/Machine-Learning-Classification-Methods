@@ -9,9 +9,10 @@ from sklearn.model_selection import train_test_split
 # Read the csv files
 mobile_dataset = pd.read_csv('data/train_mobile.csv')
 
-continuous_indices = [2, 7]  # indices of continuous features
-x_mobile = mobile_dataset.iloc[:, :-1].values
-y_mobile = mobile_dataset.iloc[:, 20].values
+y_mobile = mobile_dataset['price_range']
+print(y_mobile.head())
+x_mobile = mobile_dataset.drop(['price_range'], axis=1)
+print(x_mobile.head())
 
 # Set data for train and test from the Train data
 x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test = train_test_split(x_mobile, y_mobile, test_size=0.30)
@@ -126,6 +127,10 @@ acc = nbc.accuracy(y_mobile_test, predict_train)
 f1score = f1_score(predict_train, y_mobile_test, average='weighted')
 
 print("\n")
-print("TRAIN Naive Bayes classifier")
+print("Naive Bayes classifier")
 print("Accuracy= ", acc)
 print("f1 score(weighted)= ", f1score)
+
+# print predict and y test side by side
+res = "\n".join("{} {}".format(x, y) for x, y in zip(y_mobile_test, predict_train))
+print(res)

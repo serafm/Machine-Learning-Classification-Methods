@@ -16,8 +16,8 @@ mobile_dataset = pd.read_csv(mobile_data)
 print(mobile_dataset.head())
 
 continuous_indices = [2, 7]  # indices of continuous features
-x_mobile = mobile_dataset.iloc[:, :-1].values
-y_mobile = mobile_dataset.iloc[:, 20].values
+y_mobile = mobile_dataset['price_range']
+x_mobile = mobile_dataset.drop(['price_range'], axis=1)
 
 # split data to train and test sets
 x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test = train_test_split(x_mobile, y_mobile, test_size=0.30)

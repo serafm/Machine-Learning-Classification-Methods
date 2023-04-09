@@ -3,13 +3,16 @@ import pandas as pd
 from scipy.stats import norm
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn.model_selection import KFold
 
 # Read the csv files
 mobile_dataset = pd.read_csv('data/train_mobile.csv')
 print(mobile_dataset)
 
-x_mobile = mobile_dataset.iloc[:, :-1].values
-y_mobile = mobile_dataset.iloc[:, 20].values
+y_mobile = mobile_dataset['price_range']
+print(y_mobile.head())
+x_mobile = mobile_dataset.drop(['price_range'], axis=1)
+print(x_mobile.head())
 
 # Set data for train and test from the Train data
 x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test = train_test_split(x_mobile, y_mobile, test_size=0.30)
@@ -59,6 +62,18 @@ class NaiveBayesClassifier:
         return self.classes[np.argmax(log_likelihood, axis=1)]
 
 
+def k_fold_cv(classifier, X, y):
+    kf = KFold(n_splits=10)
+    accuracies = []
+    for train_idx, test_idx in kf.split(X):
+        X_train, y_train = X[train_idx], y[train_idx]
+        X_test, y_test = X[test_idx], y[test_idx]
+        classifier.fit(X_train, y_train)
+        y_pred = classifier.predict(X_test)
+        accuracy = np.mean(y_pred == y_test)
+        accuracies.append(accuracy)
+
+
 def f1_score(y_true, y_pred):
     tp = np.sum((y_true == 1) & (y_pred == 1))
     fp = np.sum((y_true == 0) & (y_pred == 1))
@@ -74,7 +89,7 @@ def accuracy(y_true, y_pred):
 
 
 nb = NaiveBayesClassifier()
-nb.fit(x_mobile_train, y_mobile_train)
+k_fold_cv(nb, x_mobile, y_mobile)
 
 y_pred = nb.predict(x_mobile_test)
 
