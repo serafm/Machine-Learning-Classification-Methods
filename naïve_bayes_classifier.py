@@ -2,27 +2,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, accuracy_score
 from scipy.stats import multinomial
-from sklearn.model_selection import train_test_split
-
-# Read the csv files
-mobile_dataset = pd.read_csv('data/train_mobile.csv')
-
-y_mobile = mobile_dataset['price_range']
-x_mobile = mobile_dataset.drop(['price_range'], axis=1)
-print(x_mobile.head())
-
-# Set data for train and test from the Train data
-x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test = train_test_split(x_mobile, y_mobile, test_size=0.30)
+from sklearn.model_selection import train_test_split, KFold
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 
 class NaiveBayesClassifier:
-    """
-    Bayes Theorem form
-    P(y|X) = P(X|y) * P(y) / P(X)
-    """
-
     def calc_prior(self, features, target):
         """
         prior probability P(y)
@@ -42,13 +28,6 @@ class NaiveBayesClassifier:
         return self.mean, self.var
 
     def gaussian_density(self, class_idx, x):
-        """
-        calculate probability from gaussian density function (normally distributed)
-        we will assume that probability of specific target value given specific class is normally distributed
-
-        probability density function derived from wikipedia:
-        (1/√2pi*σ) * exp((-1/2)*((x-μ)^2)/(2*σ²)), where μ is mean, σ² is variance, σ is quare root of variance (standard deviation)
-        """
         mean = self.mean[class_idx]
         var = self.var[class_idx]
         numerator = np.exp((-1 / 2) * ((x - mean) ** 2) / (2 * var))
@@ -92,10 +71,6 @@ class NaiveBayesClassifier:
         preds = [self.calc_posterior(f) for f in features.to_numpy()]
         return preds
 
-    def accuracy(self, y_test, y_pred):
-        accuracy = np.sum(y_test == y_pred) / len(y_test)
-        return accuracy
-
     def visualize(self, y_true, y_pred, target):
 
         tr = pd.DataFrame(data=y_true, columns=[target])
@@ -115,21 +90,104 @@ class NaiveBayesClassifier:
         plt.show()
 
 
-# train the model
-naive_bayes_classifier = NaiveBayesClassifier()
+""" Mobile Price """
+# Read the csv files
+mobile_dataset = pd.read_csv('data/train_mobile.csv')
+y_mobile = mobile_dataset['price_range']
+x_mobile = mobile_dataset.drop(['price_range'], axis=1)
 
-naive_bayes_classifier.fit(x_mobile_train, y_mobile_train)
+# Set data for train and test from the Train data
+x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test = train_test_split(x_mobile, y_mobile, test_size=0.30)
 
-predict_train = naive_bayes_classifier.predict(x_mobile_test)
 
-acc = naive_bayes_classifier.accuracy(y_mobile_test, predict_train)
-f1score = f1_score(predict_train, y_mobile_test, average='weighted')
+# Define the KFold object
+kfold = KFold(n_splits=10)
 
-print("\n")
-print("Naive Bayes classifier")
-print("Accuracy= ", acc)
-print("f1 score(weighted)= ", f1score)
+# Initialize the arrays for storing accuracy and f1 score
+scores = []
 
-# print predict and y test side by side
-# res = "\n".join("{} {}".format(x, y) for x, y in zip(y_mobile_test, predict_train))
-# print(res)
+# Iterate over the splits and train/test the model
+for train_idx, test_idx in kfold.split(x_mobile, y_mobile):
+    x_train, y_train = x_mobile.iloc[train_idx], y_mobile.iloc[train_idx]
+    x_test, y_test = x_mobile.iloc[test_idx], y_mobile.iloc[test_idx]
+
+    # train the model
+    naive_bayes_classifier = NaiveBayesClassifier()
+    naive_bayes_classifier.fit(x_train, y_train)
+
+    predict_test = naive_bayes_classifier.predict(x_test)
+
+    acc = accuracy_score(y_test, predict_test)
+    f1score = f1_score(predict_test, y_test, average='weighted')
+
+    scores.append((acc,f1score))
+
+print("\nMobile Price dataset\n")
+s = max(scores)
+print("Naive Bayes classifier best score of 10-fold cross-validation")
+print("Accuracy: ", s[0])
+print("f1 score: ", s[1])
+
+
+""" Airlines Delay """
+airlines_dataset = pd.read_csv('data/airlines_delay.csv')
+airlines_dataset.drop("Flight", axis=1, inplace=True)
+
+# Creating an instance of label Encoder.
+encode_labels = LabelEncoder()
+
+# Using .fit_transform function to fit label
+# encoder and return encoded label
+airline_label = encode_labels.fit_transform(airlines_dataset['Airline'])
+airportFrom_labels = encode_labels.fit_transform(airlines_dataset['AirportFrom'])
+airportTo_labels = encode_labels.fit_transform(airlines_dataset['AirportTo'])
+
+# Appending the array to our dataFrame
+# with column name 'Airline'
+airlines_dataset["Airline"] = airline_label
+
+# Appending the array to our dataFrame
+# with column name 'AirportFrom'
+airlines_dataset["AirportFrom"] = airportFrom_labels
+
+# Appending the array to our dataFrame
+# with column name 'AirportTo'
+airlines_dataset["AirportTo"] = airportTo_labels
+
+# continuous_indices = [0, 1]  # indices of continuous features
+x_airlines = airlines_dataset.drop(['Class'], axis=1)
+y_airlines = airlines_dataset['Class']
+
+# split data to train and test sets
+x_airlines_train, x_airlines_test, y_airlines_train, y_airlines_test = train_test_split(x_airlines, y_airlines,
+                                                                                        test_size=0.30)
+
+scaler = StandardScaler()
+
+# Define the KFold object
+kfold = KFold(n_splits=10)
+
+# Initialize the arrays for storing accuracy and f1 score
+scores = []
+
+# Iterate over the splits and train/test the model
+for train_idx, test_idx in kfold.split(x_airlines, y_airlines):
+    x_train, y_train = x_airlines.iloc[train_idx], y_airlines.iloc[train_idx]
+    x_test, y_test = x_airlines.iloc[test_idx], y_airlines.iloc[test_idx]
+
+    # train the model
+    naive_bayes_classifier = NaiveBayesClassifier()
+    naive_bayes_classifier.fit(x_train, y_train)
+
+    predict_test = naive_bayes_classifier.predict(x_test)
+
+    acc = accuracy_score(y_test, predict_test)
+    f1score = f1_score(predict_test, y_test, average='weighted')
+
+    scores.append((acc, f1score))
+
+print("\nAirlines Delay dataset\n")
+s = max(scores)
+print("Naive Bayes classifier best score of 10-fold cross-validation")
+print("Accuracy: ", s[0])
+print("f1 score: ", s[1])

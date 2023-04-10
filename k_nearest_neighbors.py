@@ -5,10 +5,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, f1_score
 
-""" Mobile Price Classification """
+""" Mobile Price """
 # load data from csv
-mobile_data = "data/train_mobile.csv"
-mobile_dataset = pd.read_csv(mobile_data)
+mobile_dataset = pd.read_csv("data/train_mobile.csv")
 
 # k-neighbors
 neighbors = [1, 3, 5, 10]
@@ -44,8 +43,7 @@ for k in neighbors:
 
 
 """ Airlines Delay """
-airlines_data = 'data/airlines_delay.csv'
-airlines_dataset = pd.read_csv(airlines_data)
+airlines_dataset = pd.read_csv('data/airlines_delay.csv')
 airlines_dataset.drop("Flight", axis=1, inplace=True)
 
 # Creating an instance of label Encoder.
