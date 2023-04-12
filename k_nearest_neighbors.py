@@ -1,45 +1,66 @@
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split, cross_val_score, KFold
-from sklearn.preprocessing import StandardScaler
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, f1_score
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.neighbors import KNeighborsClassifier
+
+
+def k_neighbors_classifier(X_train, X_test, y_train, y_test):
+    # k-neighbors
+    neighbors = [1, 3, 5, 10]
+    best_cross_validation_score = (0, 0)
+    best_train_test_score = (0, 0)
+    best_k = 0
+
+    for k in neighbors:
+        # initialize k-nearest neighbors classifier
+        knn_classifier = KNeighborsClassifier(k, weights="distance")
+
+        # fit classifier on training data
+        knn_classifier.fit(X_train, y_train)
+
+        # evaluate classifier on test data
+        test_preds = knn_classifier.predict(X_test)
+        test_acc = accuracy_score(test_preds, y_test)
+        test_f1 = f1_score(test_preds, y_test, average='weighted')
+        train_test_score = (test_acc, test_f1)
+
+        # evaluate classifier using cross-validation on training data
+        cv_acc_scores = cross_val_score(knn_classifier, X_train, y_train, cv=10)
+        cv_accuracy = cv_acc_scores.mean()
+
+        cv_f1_scores = cross_val_score(knn_classifier, X_train, y_train, cv=10, scoring='f1_weighted')
+        cv_f1score = cv_f1_scores.mean()
+
+        cross_validation_score = (cv_accuracy, cv_f1score)
+
+        if cross_validation_score > best_cross_validation_score and train_test_score > best_train_test_score:
+            best_cross_validation_score = cross_validation_score
+            best_train_test_score = train_test_score
+            best_k = k
+
+    print("Best Score")
+    print(best_k, "Nearest Neighbors")
+    print("Accuracy:", f'{best_train_test_score[0]:.2f}')
+    print("F1 score:",  f'{best_train_test_score[1]:.2f}')
+    print("Cross Validation Score")
+    print("Mean Accuracy:", f'{best_cross_validation_score[0]:.2f}')
+    print("Mean F1 score:", f'{best_cross_validation_score[1]:.2f}')
+
 
 """ Mobile Price """
 # load data from csv
-mobile_dataset = pd.read_csv("data/train_mobile.csv")
+mobile_dataset = pd.read_csv("data/train_mobile.csv", nrows=5000)
 
-# k-neighbors
-neighbors = [1, 3, 5, 10]
-
-# continuous_indices = [2, 7]  # indices of continuous features
 y_mobile = mobile_dataset['price_range']
 x_mobile = mobile_dataset.drop(['price_range'], axis=1)
 
 # split data to train and test sets
-x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test = train_test_split(x_mobile, y_mobile, test_size=0.30)
+x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test = train_test_split(x_mobile, y_mobile, test_size=0.30, random_state=42)
 
-scaler = StandardScaler()
+print("\nk-NN Mobile Dataset")
 
-print("k-NN Mobile Dataset")
-for k in neighbors:
-    mobile_knn_classifier = KNeighborsClassifier(n_neighbors=k)
-
-    # Implement 10-fold cross-validation on the training set
-    scores = cross_val_score(mobile_knn_classifier, scaler.fit_transform(x_mobile), y_mobile, cv=10)
-
-    # Fit the classifier to the training data for each fold of the cross-validation
-    for train_index, test_index in KFold(n_splits=10).split(x_mobile):
-        x_mobile_train, x_mobile_test = x_mobile.iloc[train_index], x_mobile.iloc[test_index]
-        y_mobile_train, y_mobile_test = y_mobile.iloc[train_index], y_mobile.iloc[test_index]
-        mobile_knn_classifier.fit(scaler.fit_transform(x_mobile_train), y_mobile_train)
-        y_mobile_predict = mobile_knn_classifier.predict(scaler.fit_transform(x_mobile_test))
-
-        print("k-NN (k="+str(k)+")")
-        mobile_acc = accuracy_score(y_mobile_predict, y_mobile_test)
-        print("Accuracy:", mobile_acc)
-        f1score = f1_score(y_mobile_predict, y_mobile_test, average='weighted')
-        print("f1 score: ", f1score)
+k_neighbors_classifier(x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test)
 
 
 """ Airlines Delay """
@@ -67,35 +88,11 @@ airlines_dataset["AirportFrom"] = airportFrom_labels
 # with column name 'AirportTo'
 airlines_dataset["AirportTo"] = airportTo_labels
 
-# continuous_indices = [0, 1]  # indices of continuous features
 x_airlines = airlines_dataset.drop(['Class'], axis=1)
 y_airlines = airlines_dataset['Class']
 
 # split data to train and test sets
-x_airlines_train, x_airlines_test, y_airlines_train, y_airlines_test = train_test_split(x_airlines, y_airlines,
-                                                                                        test_size=0.30)
-
-scaler = StandardScaler()
-scaler.fit(x_airlines_train)
-x_airlines_train = scaler.transform(x_airlines_train)
-x_airlines_test = scaler.transform(x_airlines_test)
+x_airlines_train, x_airlines_test, y_airlines_train, y_airlines_test = train_test_split(x_airlines, y_airlines, test_size=0.30, random_state=42)
 
 print("\nk-NN Airlines Dataset")
-for k in neighbors:
-    airlines_knn_classifier = KNeighborsClassifier(n_neighbors=k)
-
-    # Implement 10-fold cross-validation on the training set
-    scores = cross_val_score(airlines_knn_classifier, scaler.fit_transform(x_airlines), y_airlines, cv=10)
-
-    # Fit the classifier to the training data for each fold of the cross-validation
-    for train_index, test_index in KFold(n_splits=10).split(x_airlines):
-        x_airlines_train, x_airlines_test = x_airlines.iloc[train_index], x_airlines.iloc[test_index]
-        y_airlines_train, y_airlines_test = y_airlines.iloc[train_index], y_airlines.iloc[test_index]
-        airlines_knn_classifier.fit(scaler.fit_transform(x_airlines_train), y_airlines_train)
-        y_airlines_predict = airlines_knn_classifier.predict(scaler.fit_transform(x_airlines_test))
-
-        print("k-NN (k="+str(k)+")")
-        airlines_acc = accuracy_score(y_airlines_predict, y_airlines_test)
-        print("Accuracy:", airlines_acc)
-        f1score = f1_score(y_airlines_predict, y_airlines_test, average='weighted')
-        print("f1 score: ", f1score)
+k_neighbors_classifier(x_airlines_train, x_airlines_test, y_airlines_train, y_airlines_test)
