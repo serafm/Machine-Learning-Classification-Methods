@@ -114,7 +114,7 @@ mlp_mobile.mlpClassifier()
 mlp_mobile.mlpClassifierTwo()
 
 """ Airlines Delay """
-airlines_dataset = pd.read_csv('data/airlines_delay.csv', nrows=10000)
+airlines_dataset = pd.read_csv('data/airlines_delay.csv')
 airlines_dataset.drop("Flight", axis=1, inplace=True)
 
 # Creating an instance of label Encoder.
