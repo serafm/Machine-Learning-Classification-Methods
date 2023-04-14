@@ -108,7 +108,7 @@ x_mobile = mobile_dataset.drop(['price_range'], axis=1)
 # split data to train and test sets
 x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test = train_test_split(x_mobile, y_mobile, test_size=0.30, random_state=42)
 
-print("Mobile Price Dataset")
+print("Mobile Data")
 mlp_mobile = MLP(x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test)
 mlp_mobile.mlpClassifier()
 mlp_mobile.mlpClassifierTwo()
@@ -144,7 +144,7 @@ y_airlines = airlines_dataset['Class']
 # split data to train and test sets
 x_airlines_train, x_airlines_test, y_airlines_train, y_airlines_test = train_test_split(x_airlines, y_airlines, test_size=0.30, random_state=42)
 
-print("Airlines Delay Dataset")
+print("Airlines Data")
 mlp_airlines = MLP(x_airlines_train, x_airlines_test, y_airlines_train, y_airlines_test)
 mlp_airlines.mlpClassifier()
 mlp_airlines.mlpClassifierTwo()

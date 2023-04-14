@@ -131,7 +131,7 @@ x_mobile = mobile_dataset.drop(['price_range'], axis=1)
 x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test = train_test_split(x_mobile, y_mobile, test_size=0.30, random_state=42)
 
 # Naive Bayes Classifier
-print("Mobile Data Naive Bayes Classifier")
+print("Mobile Data")
 classifier_train(x_mobile, y_mobile, x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test)
 
 """ Airlines Delay """
@@ -166,5 +166,5 @@ y_airlines = airlines_dataset['Class']
 x_airlines_train, x_airlines_test, y_airlines_train, y_airlines_test = train_test_split(x_airlines, y_airlines, test_size=0.30, random_state=42)
 
 # Naive Bayes Classifier
-print("Airlines Data Naive Bayes Classifier")
+print("Airlines Data")
 classifier_train(x_airlines, y_airlines, x_airlines_train, x_airlines_test, y_airlines_train, y_airlines_test)

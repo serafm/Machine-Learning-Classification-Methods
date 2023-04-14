@@ -105,7 +105,7 @@ x_mobile = mobile_dataset.drop(['price_range'], axis=1)
 # split data to train and test sets
 x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test = train_test_split(x_mobile, y_mobile, test_size=0.30, random_state=42)
 
-print("\nMobile Dataset")
+print("Mobile Dataset")
 svm_classifier_mobile = SVM(x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test)
 svm_classifier_mobile.linearSVM()
 svm_classifier_mobile.gaussianSVM()
@@ -150,7 +150,7 @@ x_airlines = airlines_dataset.drop(['Class'], axis=1)
 # split data to train and test sets
 x_airlines_train, x_airlines_test, y_airlines_train, y_airlines_test = train_test_split(x_airlines, y_airlines, test_size=0.30, random_state=42)
 
-print("\nAirlines Dataset")
+print("Airlines Dataset")
 svm_classifier = SVM(x_airlines_train, x_airlines_test, y_airlines_train, y_airlines_test)
 svm_classifier.linearSVM()
 svm_classifier.gaussianSVM()
