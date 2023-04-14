@@ -50,7 +50,7 @@ def k_neighbors_classifier(X_train, X_test, y_train, y_test):
 
 """ Mobile Price """
 # load data from csv
-mobile_dataset = pd.read_csv("data/train_mobile.csv", nrows=5000)
+mobile_dataset = pd.read_csv("data/train_mobile.csv")
 
 y_mobile = mobile_dataset['price_range']
 x_mobile = mobile_dataset.drop(['price_range'], axis=1)
@@ -58,8 +58,7 @@ x_mobile = mobile_dataset.drop(['price_range'], axis=1)
 # split data to train and test sets
 x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test = train_test_split(x_mobile, y_mobile, test_size=0.30, random_state=42)
 
-print("\nk-NN Mobile Dataset")
-
+print("Mobile Dataset")
 k_neighbors_classifier(x_mobile_train, x_mobile_test, y_mobile_train, y_mobile_test)
 
 
@@ -94,5 +93,5 @@ y_airlines = airlines_dataset['Class']
 # split data to train and test sets
 x_airlines_train, x_airlines_test, y_airlines_train, y_airlines_test = train_test_split(x_airlines, y_airlines, test_size=0.30, random_state=42)
 
-print("\nk-NN Airlines Dataset")
+print("Airlines Dataset")
 k_neighbors_classifier(x_airlines_train, x_airlines_test, y_airlines_train, y_airlines_test)
